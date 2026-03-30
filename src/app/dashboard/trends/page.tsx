@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+export const metadata: Metadata = { title: "Trender" };
 export const dynamic = "force-dynamic";
 import { createServerClient } from "@/lib/supabase/server";
 import { getUserBusiness } from "@/lib/supabase/auth-helpers";
@@ -23,7 +25,7 @@ function sentimentColor(sentiment: string) {
 
 export default async function TrendsPage() {
   const biz = await getUserBusiness();
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   interface DayData {
     date: string;

@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+export const metadata: Metadata = { title: "Feedback" };
 export const dynamic = "force-dynamic";
 import { createServerClient } from "@/lib/supabase/server";
 import { getUserBusiness } from "@/lib/supabase/auth-helpers";
@@ -41,7 +43,7 @@ export default async function FeedbackPage({
   const { filter = "all", page = "1" } = await searchParams;
   const currentPage = Math.max(1, parseInt(page, 10) || 1);
   const biz = await getUserBusiness();
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   interface RecordingRow {
     id: string;

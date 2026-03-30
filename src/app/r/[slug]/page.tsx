@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
+import { getSupabase } from "@/lib/supabase/client";
 
 type RecordingState = "idle" | "recording" | "preview" | "submitting" | "done";
 
@@ -14,12 +15,46 @@ export default function RecordPage() {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Location lookup
+  const [businessName, setBusinessName] = useState<string | null>(null);
+  const [locationNotFound, setLocationNotFound] = useState(false);
+  const [lookupLoading, setLookupLoading] = useState(true);
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
   const MAX_DURATION = 60;
+
+  // Look up location from slug in Supabase
+  useEffect(() => {
+    async function lookupLocation() {
+      try {
+        const supabase = getSupabase();
+        const { data: location } = await supabase
+          .from("locations")
+          .select("id, name, business_id, businesses(name)")
+          .eq("slug", slug)
+          .single();
+
+        if (!location) {
+          setLocationNotFound(true);
+          setLookupLoading(false);
+          return;
+        }
+
+        const biz = location.businesses as unknown as { name: string } | null;
+        setBusinessName(biz?.name ?? location.name);
+      } catch {
+        setLocationNotFound(true);
+      } finally {
+        setLookupLoading(false);
+      }
+    }
+
+    lookupLocation();
+  }, [slug]);
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
@@ -132,10 +167,31 @@ export default function RecordPage() {
     return `${m}:${s.toString().padStart(2, "0")}`;
   }
 
-  // Decode slug for display
-  const businessName = decodeURIComponent(slug)
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  // Loading state
+  if (lookupLoading) {
+    return (
+      <div className="min-h-screen bg-warm-900 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-teal-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Location not found
+  if (locationNotFound) {
+    return (
+      <div className="min-h-screen bg-warm-900 flex items-center justify-center px-4">
+        <div className="text-center">
+          <p className="text-5xl mb-4">🔍</p>
+          <h1 className="text-2xl font-heading font-bold text-white mb-2">
+            Lokasjon ikke funnet
+          </h1>
+          <p className="text-warm-400">
+            Denne QR-koden er ikke lenger aktiv eller finnes ikke.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (state === "done") {
     return (

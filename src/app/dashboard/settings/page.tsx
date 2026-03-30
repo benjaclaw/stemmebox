@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+export const metadata: Metadata = { title: "Innstillinger" };
 export const dynamic = "force-dynamic";
 import { createServerClient } from "@/lib/supabase/server";
 import { getUserBusiness } from "@/lib/supabase/auth-helpers";
@@ -5,7 +7,7 @@ import SettingsForm from "./settings-form";
 
 export default async function SettingsPage() {
   const biz = await getUserBusiness();
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   let businessName = "";
   let planType = "free";

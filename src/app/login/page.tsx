@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getSupabase } from "@/lib/supabase/client";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -17,7 +18,9 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    const { error } = await getSupabase().auth.signInWithPassword({
+    const supabase = getSupabase();
+
+    const { error, data } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -28,7 +31,20 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/dashboard");
+    // Check if user has a business
+    const { data: member } = await supabase
+      .from("members")
+      .select("id")
+      .eq("user_id", data.user.id)
+      .maybeSingle();
+
+    const redirect = searchParams.get("redirect");
+
+    if (member) {
+      router.push(redirect || "/dashboard");
+    } else {
+      router.push("/create-business");
+    }
   }
 
   return (
@@ -117,5 +133,13 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

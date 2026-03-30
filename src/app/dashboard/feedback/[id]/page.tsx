@@ -50,7 +50,7 @@ export default async function FeedbackDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   const { data: recording } = await supabase
     .from("recordings")

@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+export const metadata: Metadata = { title: "Oversikt" };
 export const dynamic = "force-dynamic";
 import { createServerClient } from "@/lib/supabase/server";
 import { getUserBusiness } from "@/lib/supabase/auth-helpers";
@@ -25,7 +27,7 @@ function SentimentBadge({ sentiment }: { sentiment: string }) {
 
 export default async function DashboardOverview() {
   const biz = await getUserBusiness();
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   let totalRecordings = 0;
   let thisWeekCount = 0;

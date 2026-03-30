@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+const PROJECT_REF = "gmvghfwgttnbkvrqllua";
+
 const protectedPaths = ["/dashboard", "/create-business"];
 
 export function middleware(request: NextRequest) {
@@ -14,17 +16,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check for Supabase auth token in cookies
-  const token =
-    request.cookies.get("sb-access-token")?.value ||
-    request.cookies.get("sb-refresh-token")?.value;
-
-  // Also check the newer cookie format
-  const hasAuthCookie = Array.from(request.cookies.getAll()).some(
-    (cookie) => cookie.name.startsWith("sb-") && cookie.name.endsWith("-auth-token")
+  // Check for Supabase SSR auth token cookie: sb-<project-ref>-auth-token
+  const authCookieName = `sb-${PROJECT_REF}-auth-token`;
+  const hasAuthCookie = request.cookies.getAll().some(
+    (cookie) =>
+      cookie.name === authCookieName ||
+      cookie.name.startsWith(`${authCookieName}.`)
   );
 
-  if (!token && !hasAuthCookie) {
+  if (!hasAuthCookie) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);

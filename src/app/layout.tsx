@@ -2,9 +2,30 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "StemmeBox — Anonym stemme-feedback for restauranter",
+  title: {
+    default: "StemmeBox — Anonym stemme-feedback for bedrifter",
+    template: "%s | StemmeBox",
+  },
   description:
     "La kundene dine gi ærlig tilbakemelding med stemmen. QR-kode → innspilling → AI-analyse. Helt anonymt.",
+  openGraph: {
+    title: "StemmeBox — Anonym stemme-feedback for bedrifter",
+    description:
+      "La kundene dine gi ærlig tilbakemelding med stemmen. QR-kode → innspilling → AI-analyse. Helt anonymt.",
+    url: "https://stemmebox.vercel.app",
+    siteName: "StemmeBox",
+    locale: "nb_NO",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "StemmeBox — Anonym stemme-feedback",
+    description:
+      "La kundene gi ærlig tilbakemelding med stemmen. Helt anonymt.",
+  },
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
