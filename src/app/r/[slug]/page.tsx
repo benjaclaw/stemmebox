@@ -100,10 +100,30 @@ export default function RecordPage() {
   }
 
   async function handleSubmit() {
+    if (!chunksRef.current.length) return;
     setState("submitting");
-    // TODO: Upload to Supabase Storage
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setState("done");
+
+    try {
+      const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+      const formData = new FormData();
+      formData.append("audio", blob, "recording.webm");
+      formData.append("slug", slug);
+      formData.append("duration", String(duration));
+
+      const res = await fetch("/api/recordings", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("Upload failed");
+      }
+
+      setState("done");
+    } catch {
+      setError("Kunne ikke sende inn tilbakemeldingen. Prøv igjen.");
+      setState("preview");
+    }
   }
 
   function formatTime(seconds: number) {

@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { getSupabase } from "@/lib/supabase/client";
 
 const navItems = [
   { href: "/dashboard", label: "Oversikt", icon: "📊" },
@@ -18,7 +19,14 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  async function handleLogout() {
+    const supabase = getSupabase();
+    await supabase.auth.signOut();
+    router.push("/");
+  }
 
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === "/dashboard";
@@ -117,13 +125,13 @@ export default function DashboardLayout({
 
           {/* Bottom */}
           <div className="px-3 py-4 border-t border-warm-200">
-            <Link
-              href="/"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-warm-500 hover:bg-warm-100 hover:text-warm-900 transition"
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-warm-500 hover:bg-warm-100 hover:text-warm-900 transition"
             >
               <span>🚪</span>
               <span>Logg ut</span>
-            </Link>
+            </button>
           </div>
         </aside>
 
