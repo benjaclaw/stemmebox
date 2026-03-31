@@ -13,13 +13,14 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    const { error } = await getSupabase().auth.signUp({
+    const { error, data } = await getSupabase().auth.signUp({
       email,
       password,
     });
@@ -30,7 +31,15 @@ export default function SignupPage() {
       return;
     }
 
-    router.push("/create-business");
+    // If session exists, email confirmation is disabled — go straight to onboarding
+    if (data.session) {
+      router.push("/create-business");
+      return;
+    }
+
+    // Email confirmation required — show success message
+    setSuccess(true);
+    setLoading(false);
   }
 
   return (
@@ -47,6 +56,24 @@ export default function SignupPage() {
           </p>
         </div>
 
+        {success ? (
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-warm-200 text-center">
+            <div className="text-4xl mb-4">📧</div>
+            <h2 className="text-lg font-heading font-semibold text-warm-900 mb-2">
+              Sjekk e-posten din
+            </h2>
+            <p className="text-warm-500 text-sm mb-6">
+              Vi har sendt en bekreftelseslenke til <strong>{email}</strong>. Klikk på lenken for å aktivere kontoen din.
+            </p>
+            <Link
+              href="/login"
+              className="text-teal-primary hover:underline font-medium text-sm"
+            >
+              Gå til innlogging
+            </Link>
+          </div>
+        ) : (
+        <>
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 shadow-sm border border-warm-200">
           {error && (
             <div className="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-lg mb-4">
@@ -102,6 +129,8 @@ export default function SignupPage() {
             Logg inn
           </Link>
         </p>
+        </>
+        )}
       </div>
       </main>
       <Footer />
