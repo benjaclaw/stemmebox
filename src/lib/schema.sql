@@ -170,6 +170,20 @@ create policy "Members can read own plan"
   on plans for select
   using (business_id in (select business_id from members where user_id = auth.uid()));
 
+create policy "Authenticated users can create plans"
+  on plans for insert
+  to authenticated
+  with check (business_id in (select business_id from members where user_id = auth.uid()));
+
+-- Locations: members can update and owners can delete
+create policy "Members can update locations"
+  on locations for update
+  using (business_id in (select business_id from members where user_id = auth.uid()));
+
+create policy "Owners can delete locations"
+  on locations for delete
+  using (business_id in (select business_id from members where user_id = auth.uid() and role = 'owner'));
+
 -- ============================================================
 -- Storage Bucket for recordings
 -- ============================================================

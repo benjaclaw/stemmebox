@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { getSupabase } from "@/lib/supabase/client";
 import { generateQRCodeSVG, svgToDataUrl } from "@/lib/qr";
 
 const INDUSTRIES = [
@@ -13,17 +12,6 @@ const INDUSTRIES = [
   { value: "hotel", label: "Hotell" },
   { value: "other", label: "Annet" },
 ];
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[æ]/g, "ae")
-    .replace(/[ø]/g, "o")
-    .replace(/[å]/g, "a")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60);
-}
 
 export default function CreateBusinessPage() {
   const router = useRouter();
@@ -53,89 +41,25 @@ export default function CreateBusinessPage() {
     setError(null);
 
     try {
-      const supabase = getSupabase();
+      const res = await fetch("/api/onboarding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          businessName: businessName.trim(),
+          industry,
+          locationName: locationName.trim(),
+          locationAddress: locationAddress.trim() || null,
+        }),
+      });
 
-      // Get current user
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        setError("Du må være logget inn. Prøv å logge inn på nytt.");
-        setLoading(false);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Noe gikk galt. Prøv igjen.");
         return;
       }
 
-      // Generate unique slug
-      const baseSlug = slugify(businessName);
-      let slug = baseSlug;
-      let attempt = 0;
-
-      while (true) {
-        const { data: existing } = await supabase
-          .from("businesses")
-          .select("id")
-          .eq("slug", slug)
-          .maybeSingle();
-
-        if (!existing) break;
-        attempt++;
-        slug = `${baseSlug}-${attempt}`;
-      }
-
-      // Create business
-      const { data: business, error: bizError } = await supabase
-        .from("businesses")
-        .insert({ name: businessName.trim(), slug })
-        .select("id")
-        .single();
-
-      if (bizError) throw bizError;
-
-      // Create membership
-      const { error: memberError } = await supabase.from("members").insert({
-        user_id: user.id,
-        business_id: business.id,
-        role: "owner",
-      });
-
-      if (memberError) throw memberError;
-
-      // Create free plan
-      const { error: planError } = await supabase.from("plans").insert({
-        business_id: business.id,
-        plan_type: "free",
-        status: "active",
-      });
-
-      if (planError) throw planError;
-
-      // Create location with slug
-      const locSlug = slugify(`${businessName}-${locationName}`);
-      let finalLocSlug = locSlug;
-      let locAttempt = 0;
-
-      while (true) {
-        const { data: existing } = await supabase
-          .from("locations")
-          .select("id")
-          .eq("slug", finalLocSlug)
-          .maybeSingle();
-
-        if (!existing) break;
-        locAttempt++;
-        finalLocSlug = `${locSlug}-${locAttempt}`;
-      }
-
-      const { error: locError } = await supabase.from("locations").insert({
-        business_id: business.id,
-        name: locationName.trim(),
-        address: locationAddress.trim() || null,
-        slug: finalLocSlug,
-      });
-
-      if (locError) throw locError;
-
-      setLocationSlug(finalLocSlug);
+      setLocationSlug(data.locationSlug);
       setStep(3);
     } catch (err) {
       console.error("Create business error:", err);
