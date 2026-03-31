@@ -1,22 +1,7 @@
 import Link from "next/link";
-
-function MicrophoneIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-      <line x1="12" y1="19" x2="12" y2="22" />
-    </svg>
-  );
-}
+import { MicrophoneIcon } from "@/components/MicrophoneIcon";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 function CheckIcon() {
   return (
@@ -113,39 +98,7 @@ const plans = [
 export default function LandingPage() {
   return (
     <div className="min-h-screen">
-      {/* Navigation */}
-      <nav className="border-b border-warm-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <MicrophoneIcon className="w-7 h-7 text-teal-primary" />
-            <span className="text-xl font-heading font-bold text-warm-900">
-              StemmeBox
-            </span>
-          </div>
-          <div className="hidden sm:flex items-center gap-6 text-sm text-warm-600">
-            <a href="#features" className="hover:text-warm-900 transition">
-              Funksjoner
-            </a>
-            <a href="#pricing" className="hover:text-warm-900 transition">
-              Priser
-            </a>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="text-sm text-warm-600 hover:text-warm-900 transition"
-            >
-              Logg inn
-            </Link>
-            <Link
-              href="/signup"
-              className="text-sm bg-teal-primary text-white px-4 py-2 rounded-lg hover:bg-teal-dark transition font-medium"
-            >
-              Kom i gang
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Header />
 
       {/* Hero */}
       <section className="py-20 sm:py-32 px-4">
@@ -351,30 +304,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-warm-200 py-12">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <MicrophoneIcon className="w-5 h-5 text-teal-primary" />
-              <span className="font-heading font-bold text-warm-900">
-                StemmeBox
-              </span>
-            </div>
-            <div className="flex items-center gap-6 text-sm text-warm-500">
-              <Link href="/privacy" className="hover:text-warm-900 transition">
-                Personvern
-              </Link>
-              <Link href="/terms" className="hover:text-warm-900 transition">
-                Vilkår
-              </Link>
-            </div>
-            <p className="text-sm text-warm-400">
-              © 2026 StemmeBox. Alle rettigheter forbeholdt.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

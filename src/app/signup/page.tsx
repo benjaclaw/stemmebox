@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabase } from "@/lib/supabase/client";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -32,27 +34,11 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-warm-50 px-4">
+    <div className="min-h-screen flex flex-col bg-warm-50">
+      <Header />
+      <main className="flex-1 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <svg
-              className="w-7 h-7 text-teal-primary"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.5}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-              <line x1="12" y1="19" x2="12" y2="22" />
-            </svg>
-            <span className="text-xl font-heading font-bold text-warm-900">
-              StemmeBox
-            </span>
-          </Link>
           <h1 className="text-2xl font-heading font-bold text-warm-900">
             Opprett konto
           </h1>
@@ -117,6 +103,8 @@ export default function SignupPage() {
           </Link>
         </p>
       </div>
+      </main>
+      <Footer />
     </div>
   );
 }
